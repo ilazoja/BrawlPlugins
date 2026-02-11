@@ -7,10 +7,13 @@
 #include <mu/menu.h>
 #include <mu/selchar/mu_selchar_player_area.h>
 #include <nw4r/g3d/g3d_resfile.h>
-#include <sy_core.h>
 #include <types.h>
 #include <vector.h>
+
+#include <plugin.hpp>
 #include "css_hooks.h"
+
+#include "hook.hpp"
 
 using namespace nw4r::g3d;
 
@@ -166,42 +169,45 @@ namespace CSSHooks {
         bctrl
     }
 
-    void InstallHooks(CoreApi* api)
+    void InstallHooks(Plugin* api)
     {
         // hook to load portraits from RSPs
-        api->syReplaceFuncRel(0x1107c,
+        api->addHookEx(0x1107c,
                               reinterpret_cast<void*>(getCharPicTexResFile),
-                              NULL,
+                              SyringeCore::OPT_DIRECT,
                               Modules::SORA_MENU_SEL_CHAR);
 
         // hook to clean up our mess when unloading CSS
-        api->syReplaceFuncRel(0x10EF8,
+        api->addHookEx(0x10EF8,
                               reinterpret_cast<void*>(destroyPlayerAreas),
-                              (void**)&_destroyPlayerAreas,
-                              Modules::SORA_MENU_SEL_CHAR);
+                              SyringeCore::OPT_DIRECT,
+                              Modules::SORA_MENU_SEL_CHAR)->getTrampoline(reinterpret_cast<void**>(&_destroyPlayerAreas));
 
-        api->syReplaceFuncRel(0x00012210,
+        api->addHookEx(0x00012210,
                               reinterpret_cast<void*>(loadCharPic),
-                              (void**)&_loadCharPic,
-                              Modules::SORA_MENU_SEL_CHAR);
+                              SyringeCore::OPT_DIRECT,
+                              Modules::SORA_MENU_SEL_CHAR)->getTrampoline(reinterpret_cast<void**>(&_loadCharPic));
 
 
         // hook to create threads when booting the CSS
-        api->syInlineHookRel(0x3524, reinterpret_cast<void*>(createThreads), Modules::SORA_MENU_SEL_CHAR);
+        api->addHookEx(0x3524, reinterpret_cast<void*>(createThreads),  SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS,Modules::SORA_MENU_SEL_CHAR);
 
         // hook to change franchise icon when portrait loads
-        api->syInlineHookRel(0x00014D98, 
+        api->addHookEx(0x00014D98,
                             reinterpret_cast<void*>(changeFranchiseIcon),
+                            SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS,
                             Modules::SORA_MENU_SEL_CHAR);
 
         // hook to change name when portrait loads
-        api->syInlineHookRel(0x00014D90, 
+        api->addHookEx(0x00014D90,
                             reinterpret_cast<void*>(changeName),
+                            SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS,
                             Modules::SORA_MENU_SEL_CHAR);
 
         // hook to clear existing franchise icon behavior
-        api->sySimpleHookRel(0x00014810,
+        api->addHookEx(0x00014810,
                             reinterpret_cast<void*>(clearFranchiseIcons),
+                            SyringeCore::OPT_DIRECT,
                             Modules::SORA_MENU_SEL_CHAR);
 
     }

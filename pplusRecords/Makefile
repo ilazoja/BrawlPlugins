@@ -24,13 +24,14 @@ endif
 
 #---------------------------------------------------------------------------------
 # TARGET is the name of the output
+# RELID is the ID to assign the .rel once built
 # BUILD is the directory where object files & intermediate files will be placed
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
 
-TARGET		:=	NetLog
-RELID		:=  201
+TARGET		:=	pplusRecords
+RELID		:=  280
 BUILD		:=	build
 SOURCES		:=	source $(wildcard source/*) ../lib/BrawlHeaders/PowerPC_EABI_Support/Runtime/Src/ # have to hardcode lib dir here???????
 INCLUDES	:=	include

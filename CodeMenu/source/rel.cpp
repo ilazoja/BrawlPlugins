@@ -1,29 +1,42 @@
 #include <gf/gf_file_io_request.h>
 #include <gf/gf_memory_pool.h>
-#include <sy_core.h>
+#include <plugin.hpp>
+#include <sr/sr_common.h>
 
 #include "codemenu.h"
 
 namespace Syringe {
 
+    extern "C" {
+        typedef void (*PFN_voidfunc)();
+        __attribute__((section(".ctors"))) extern PFN_voidfunc _ctors[];
+        __attribute__((section(".ctors"))) extern PFN_voidfunc _dtors[];
+
+        const PluginMeta* _prolog();
+        void _epilog();
+        void _unresolved();
+        void main(Plugin* plg);
+    }
+
     const PluginMeta META = {
         "CodeMenu",              // name
         "Project+",              // author
         Version("0.5.0"),        // version
-        Version(SYRINGE_VERSION) // core version
+        Version(SYRINGE_VERSION), // core version
+        &main,
+        .FLAGS = {
+        .timing = TIMING_BOOT,
+        .loading = LOAD_PERSIST,
+        .heap = Heaps::Syringe,
+        }
     };
 
-    extern "C" {
-    typedef void (*PFN_voidfunc)();
-    __attribute__((section(".ctors"))) extern PFN_voidfunc _ctors[];
-    __attribute__((section(".ctors"))) extern PFN_voidfunc _dtors[];
-
-    const PluginMeta* _prolog(CoreApi* api);
-    void _epilog();
-    void _unresolved();
+    void main(Plugin* plg)
+    {
+        mu_CodeMenu::Initialize(plg);
     }
 
-    const PluginMeta* _prolog(CoreApi* api)
+    const PluginMeta* _prolog()
     {
         // Run global constructors
         PFN_voidfunc* ctor;
@@ -31,8 +44,6 @@ namespace Syringe {
         {
             (*ctor)();
         }
-
-        mu_CodeMenu::Initialize(api);
 
         return &META;
     }

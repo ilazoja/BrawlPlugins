@@ -2,7 +2,7 @@
 #include <gf/gf_memory_pool.h>
 #include <plugin.hpp>
 #include <sr/sr_common.h>
-#include "physics.h"
+#include "records.h"
 
 namespace Syringe {
 
@@ -18,22 +18,26 @@ namespace Syringe {
     }
 
     const PluginMeta META = {
-        "Physics",                // name
-        "Project+",               // author
+        "pplusRecords",                // name
+        "Kapedani",                  // author
         Version("0.0.0"),         // version
         Version(SYRINGE_VERSION), // core version
-        &main,
         .FLAGS = {
-        .timing = TIMING_BOOT,
-        .loading = LOAD_PERSIST,
-        .heap = Heaps::Syringe,
-        }
+            .timing = TIMING_BOOT,
+            .loading = LOAD_PERSIST,
+            .heap = Heaps::Syringe,
+            }
     };
 
     void main(Plugin* plg)
     {
-        Physics::Init(plg);
+        Records::Init(plg);
     }
+
+    const PluginMeta* _prolog();
+    void _epilog();
+    void _unresolved();
+
 
     const PluginMeta* _prolog()
     {

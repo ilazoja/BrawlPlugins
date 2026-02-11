@@ -4,5 +4,5 @@
 
 class CoreApi;
 namespace CSSHooks {
-    void InstallHooks(CoreApi* api);
+    void InstallHooks(Plugin* api);
 } // namespace CSSHooks

@@ -10,42 +10,40 @@ export TOOLS 	:= $(CURDIR)/tools
 export LIB 		:= $(CURDIR)/lib
 
 
-.PHONY: all AsyncRSP ftp NetLog
+.PHONY: all AsyncRSP CodeMenu ftp NetLog Physics Sandbox MenuTest pplusRecords
 
-all: AsyncRSP ftp NetLog Sandbox MenuTest
+all: AsyncRSP CodeMenu ftp NetLog Physics Sandbox MenuTest pplusRecords
 
 AsyncRSP:
-	$(MAKE) -C AsyncRSP
-	@cp AsyncRSP/$@.rel $@.rel
+	@cd "AsyncRSP" && make clean && make
 
 CodeMenu:
-	$(MAKE) -s -C CodeMenu
-	@cp CodeMenu/$@.rel $@.rel
+	@cd "CodeMenu" && make clean && make
 
 ftp:
-	$(MAKE) -s -C ftp
-	@cp ftp/$@.rel $@.rel
+	@cd "ftp" && make clean && make
 
 NetLog:
-	$(MAKE) -s -C NetLog
-	@cp NetLog/$@.rel $@.rel
+	@cd "NetLog" && make clean && make
 
 Physics:
-	$(MAKE) -s -C Physics
-	@cp Physics/$@.rel $@.rel
+	@cd "Physics" && make clean && make
 
 Sandbox:
-	$(MAKE) -s -C Sandbox
-	@cp Sandbox/$@.rel $@.rel
+	@cd "Sandbox" && make clean && make
 
 MenuTest:
-	$(MAKE) -s -C MenuTest
-	@cp MenuTest/$@.rel $@.rel
+	@cd "MenuTest" && make clean && make
+
+pplusRecords:
+	@cd "pplusRecords" && make clean && make
 
 clean:
-	@rm ./*.rel
-	$(MAKE) -s -C AsyncRSP clean
-	$(MAKE) -s -C CodeMenu clean
-	$(MAKE) -s -C ftp clean
-	$(MAKE) -s -C NetLog clean
-	$(MAKE) -s -C Physics clean
+	@cd "AsyncRSP" && make clean
+	@cd "CodeMenu" && make clean
+	@cd "ftp" && make clean
+	@cd "NetLog" && make clean
+	@cd "Physics" && make clean
+	@cd "Sandbox" && make clean
+	@cd "MenuTest" && make clean
+	@cd "pplusRecords" && make clean

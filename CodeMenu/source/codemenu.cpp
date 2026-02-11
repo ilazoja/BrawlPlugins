@@ -6,12 +6,13 @@
 #include <modules.h>
 #include <ms/ms_message.h>
 #include <nw4r/g3d/g3d_resfile.h>
-#include <sy_core.h>
 #include <types.h>
 #include <vector.h>
 
 #include "codemenu.h"
 #include "pagemanager.h"
+#include "plugin.hpp"
+#include <hook.hpp>
 
 using namespace nw4r::g3d;
 
@@ -19,7 +20,7 @@ using namespace nw4r::g3d;
 
 void * cmFunctions[2] =
 {
-	mu_CodeMenu::cmArcAccess,	
+	mu_CodeMenu::cmArcAccess,
 	mu_CodeMenu::Update
 };
 void * cmModels[32];
@@ -66,15 +67,15 @@ void * cmComponents[4] =
 
 mu_cmPageManager* pagemanager;
 
-void mu_CodeMenu::Initialize(CoreApi* api)
+void mu_CodeMenu::Initialize(Plugin* api)
 {
-	
+
 	register const char* heapname = "CodeMenu";
 	register int heapStart; heapStart = CM_HEAPSTART;
 	register int heapSize; heapSize = CM_HEAPSIZE;
 	register int heapMem; heapMem = CM_HEAPMEM;
 	register int heapRegLoc; heapRegLoc = CM_HEAPREGLOC;
-	
+
 	//create the Code Menu heap
 	asm {
 		mr r3, heapStart;
@@ -89,9 +90,9 @@ void mu_CodeMenu::Initialize(CoreApi* api)
 		bla 0x0259A4;		// create/gfMemoryPool
 		li r4, CM_HEAPID;
 		lwz r3,-0x43e8(r13);
-		bla 0x026C78;		// setup heap 
+		bla 0x026C78;		// setup heap
 	}
-	
+
 	// load in the pac file containing the contents
 	gfFileIOHandle packageLoad;
 	packageLoad.read("menu3/CodeMenu.pac",Heaps::CodeMenu,0);
@@ -103,18 +104,18 @@ void mu_CodeMenu::Initialize(CoreApi* api)
 			stw cmSetupLoc, 0x4D38(r4);
 	}
 	pagemanager = new (Heaps::CodeMenu) mu_cmPageManager;
-	
+
 	pagemanager->init(&cmComponents);
-	
+
 	packageLoad.release();
 
-	api->syInlineHookRel(0x6910, reinterpret_cast<void*>(mu_CodeMenu::Update), Modules::SORA_MENU_SEL_CHAR);
-	
+	api->addHookEx(0x6910, reinterpret_cast<void*>(mu_CodeMenu::Update),  SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS, Modules::SORA_MENU_SEL_CHAR);
+
 };
 
 void mu_CodeMenu::Destroy()
 {
-	delete pagemanager;	
+	delete pagemanager;
 };
 
 int* mu_CodeMenu::cmArcAccess(ARCNodeType fileType, int fileIndex, int fileGroup, void* packageLoc)
@@ -125,7 +126,7 @@ int* mu_CodeMenu::cmArcAccess(ARCNodeType fileType, int fileIndex, int fileGroup
 		packageLoc = cmComponents[0]; //Default to the Code Menu but allow this code to be plastic enough to work with other archives!
 	};
 	gfArchive* package = new (Heaps::CodeMenu) gfArchive;
-	package->setFileImage(packageLoc,0x10000,Heaps::CodeMenu);	
+	package->setFileImage(packageLoc,0x10000,Heaps::CodeMenu);
 	pointerToPart = package->getData(fileGroup,fileType,fileIndex,0xFFFE);
 	delete package;
 	return (int*)pointerToPart;
@@ -134,5 +135,5 @@ int* mu_CodeMenu::cmArcAccess(ARCNodeType fileType, int fileIndex, int fileGroup
 void mu_CodeMenu::Update()
 {
 	pagemanager->update();
-	
+
 };

@@ -1,7 +1,5 @@
-#pragma once
-
 class Plugin;
-namespace Physics {
+namespace Records {
     void Init(Plugin* api);
     void Destroy();
 }
